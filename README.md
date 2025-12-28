@@ -1,214 +1,136 @@
-## Backend Onboarding Program
+## 1. 학습 목표
 
-Spring Boot 기반 백엔드 온보딩 프로그램 (8주 과정)
+- 클래스, 객체, 메서드, 생성자 개념을 이해한다.
+- 상속/다형성 등 객체지향(OOP)의 기본 개념을 이해한다.
+- Java 컬렉션(List, Map)과 Stream 기본 사용법을 익힌다.
 
-본 레포지토리는 백엔드 신입 개발자가 8주 동안 실무 수준의 Spring Boot 백엔드 역량을 갖추도록 설계된 온보딩용 저장소입니다.
-주차별 실습 → GitHub 기반 코드 제출 → 코드 리뷰 개선
-이라는 기업 실무형 학습 방식을 따릅니다.
+---
 
-> 이 레포지토리는 "Template Repository"입니다.  
-> 직접 clone하거나 PR을 보내지 마세요.  
-> 신입 개발자는 이 템플릿을 기반으로 "본인 GitHub 계정에 새로운 레포지토리"를 생성한 뒤 작업을 진행합니다.  
-> (GitHub: Use this template → Create a new repository)
+## 2. 사전 준비
 
-## 1. 온보딩 개요
-### 1.1 목적
+- Week 0 완료
+- IntelliJ에서 Java 프로젝트 생성 가능
 
-본 온보딩 프로그램의 최종 목표는 다음과 같습니다:
+---
 
-1. Spring Boot 기반 REST API를 설계하고 구현할 수 있다.
-2. JPA + QueryDSL 기반 데이터 모델링 및 조회 기능을 구현할 수 있다.
-3. 트랜잭션/예외처리/테스트를 통해 안정적인 백엔드 로직을 만든다.
-4. 실전 서비스(주문·결제)를 스스로 설계하고 구현한다.
-5. GitHub Flow 기반 협업(Git + PR + 코드리뷰)을 익숙하게 수행한다.
+## 3. 과제 설명 (Assignment)
 
-## 2. 레포지토리 구조
-  ```bash
-backend-onboarding-spring/
-│
-├── week00-environment/          # Java/Git/Docker 기본기
-├── week01-java-basic/           # Java OOP & In-Memory CRUD
-├── week02-spring-core/          # Spring Boot Core & REST
-├── week03-jpa-crud/             # JPA 기반 CRUD API
-├── week04-jpa-relations/        # JPA 연관관계 매핑
-├── week05-querydsl/             # QueryDSL 기반 검색
-├── week06-transaction-test/     # 트랜잭션 & 예외 처리 & 테스트
-└── project-final/               # 실전 프로젝트(주문/결제 시스템)
-  ```
-각 주차별 폴더에는 독립된 실습용 프로젝트가 포함되어 있으며,
-각 폴더 안의 README.md에 주차별 과제 내용이 상세히 정의되어 있습니다.
+### 3-1. 도메인 만들기
 
+다음 두 도메인을 순수 Java 클래스로 구현한다.
 
+- `User`
+    - `id: Long`
+    - `name: String`
+- `Post`
+    - `id: Long`
+    - `title: String`
+    - `content: String`
+    - `author: User` 또는 `authorName: String`
 
-## 3. 전체 커리큘럼 로드맵 (8주)
-| 주차       | 주제               | 주요 학습 내용                               | 산출물                         |
-|------------|--------------------|-----------------------------------------------|--------------------------------|
-| Week 0     | 개발 환경 세팅     | Git, JDK, Docker, HTTP 기본기                 | Hello Backend 실행 & Docker DB |
-| Week 1     | Java 기초          | OOP, Stream, 컬렉션                           | Java CRUD 프로그램             |
-| Week 2     | Spring Core        | IoC/DI, REST API                              | Memo API (In-Memory)           |
-| Week 3     | JPA CRUD           | Entity, Repository, JPA 기본 CRUD             | 회원 CRUD API                  |
-| Week 4     | 연관관계           | 1:N, N:1 매핑, Lazy Loading                   | 회원–게시글 모델               |
-| Week 5     | QueryDSL           | 동적 검색, 페이징, fetch join                 | 게시글 검색 API                |
-| Week 6     | 트랜잭션/테스트     | 재고/주문 트랜잭션, 예외 처리, 테스트        | 주문/재고 트랜잭션 코드        |
-| Week 7~8   | 실전 프로젝트       | 주문/결제 시스템 전체 구현                   | Final Project                  |
+---
+
+- java에서의 생성자 조건: 클래스 이름과 이름이 같다. 반환 타입이 없다.
+- 일반적인 자바 관례  + 외부 패키지에서의 사용을 위해 도메인 클래스는 public으로 선언
+- 외부에서 직접 변경하는 것을 프로퍼티들은 private, 수정 및 조회할 수 있는 메서드 제공
+- User의 id 생성은 repository의 역할
+    - Domain은 객체의 상태를 표현, Repository는 저장소
+    - `Domain은 Repository를 모르지만`, `Repository는 Domain을 안다.`
+    - ⁉️ - Domain은 객체의 상태를 표현하는 역할만 하기 때문에 id값은 Repository가 생성 및 관리한다!
+    - ⁉️ - Domain의 getId는 객체를 조회하는 것이 아니라 이미 존재하는 객체의 상태를 읽어 오는 것이고, Reposiroty의 findById(id)는 저장소에서 id를 키로 객체 자체를 가져온다.
+- Package: 클래스를 묶는 논리적인 `네임스페이스(이름 충돌 방지)`이자 `접근 제어`의 기준 단위
+    - package week01.domain; / package week01.repository;
+    - package는 개발자가 선언하는 것, 폴더와 패키지는 같은 의미는 아니지만 관례적으로 선언을 일치시킴
+    - 같은 패키지는 default 접근이 가능하다.
 
 
-## 4. 개발 환경 요구사항
-### 4.1 필수 설치 요소
-- JDK 21
-- IntelliJ IDEA Ultimate (권장)
-- Docker Desktop
-- Postman 또는 Insomnia
-- Git CLI
+### 3-2. In-Memory CRUD 구현
 
-### 4.2 기술 스택
-- Java 21
-- Spring Boot 3.x
-- Spring Web / Spring Data JPA
-- QueryDSL
-- PostgreSQL
-- Spring Test / JUnit5
-- Gradle
+- `UserRepository`, `PostRepository` 클래스를 만들어 `Map<Long, User>` 형식으로 데이터를 관리한다.
+- 최소 기능:
+    - 유저 생성, 조회, 목록 조회
+    - 게시글 생성, 조회, 목록 조회
 
 
-## 5. Git Workflow (브랜치 전략)
-### 5.1 브랜치 구조
-  ```bash
-# 템플릿 Repo는 main 하나만 존재하며 변경하지 않습니다.
+### 3-3. Service 계층 추가
 
-# 신입 개인 Repo에서는 다음 브랜치 전략을 사용합니다:
+- `UserService`, `PostService`를 만들어 Repository를 사용한다.
+- 단순한 비즈니스 로직(예: 유저가 없으면 게시글 생성 불가)을 하나 이상 넣어본다.
 
-main           # 기본 브랜치 (온보딩 결과물)
-develop        # 매주 실습 코드 병합 대상
-feature/*      # 각 주차별 실습 작업 브랜치
-  ```
+---
 
-### 5.2 브랜치 네이밍 규칙
-  ```bash
-feature/week02-홍길동
-feature/week05-search-홍길동
-  ```
+- UserService
+    - 이름 유효성 금지
+    - 중복 이름 금지
+    - 위의 케이스에 해당되는 경우 `throw new IllegalArgumentException();`
+        - 생성자에서도 throw를 할 수 있고, 시그니처에 throw를 명시하지 않아도 됨(Unchecked Exception)
+            - Unchecked Exception: IllegalArgumentException, NullPointerException, IllegalStateException
+            - Checked Exception: IOExcetion, SQLException
+- PostService
+    - title, content 공백 불가
+    - 유저 없으면 게시글 생성 불가
+- `Stream`: 컬렉션(List, Set 등)의 데이터를 하나씩 흘려보내면서 처리하기 위한 데이터 파이프라인
+    - 데이터를 저장하지 않고, 가공/판단만 한다. 반복문을 대체하는 도구
+    - `데이터를 흐름(stream)`으로 만들어 연속적인 연산을 적용하기 위한 API
+    - swift에서 가장 가까운 개념으로는 lazy: 지금 당장 실행하지 말고 뒤에 붙는 연산이 있을 때만 실행
+        - stream().anyMatch == contain { 조건 }
+    
+    ```java
+    // 반복문
+    boolean exists = false;
+    for (User u : users) {
+        if (u.getName().equalsIgnoreCase(name)) {
+            exists = true;
+            break;
+        }
+    }
+    
+    // Stream 방식
+    boolean exists = users.stream()
+            .anyMatch(u -> u.getName().equals(name));
+    ```
+    
 
+### 3-4. Main에서 시나리오 실행
 
-## 6. 과제 제출 방식 (모든 주차 공통)
-### 6.1 제출 절차
-1) 개인 온보딩 레포 생성  
-회사 템플릿 Repo에서 **Use this template**을 눌러  
-본인 GitHub 계정에 `backend-onboarding-{이름}` 레포를 생성합니다.
+- `Main` 클래스를 만들어 다음 흐름을 코드로 실행해 본다.
+    1. 유저 생성
+    2. 게시글 생성
+    3. 전체 게시글 목록 출력
 
-# 생성된 나의 개인 온보딩 레포를 클론합니다.
-  ```bash
-git clone git@github.com:{본인계정}/backend-onboarding-{이름}.git
-  ```
-
-2) 해당 주차 폴더 이동
-  ```bash
-cd week03-jpa-crud
-  ```
-
-3) 작업 브랜치 생성
-```bash
-git checkout -b feature/week03-홍길동
-```
-
-4) 코드 작성 후 커밋 & 푸시
-```bash
-git add .
-git commit -m "feat: implement user CRUD for week03"
-git push origin feature/week03-홍길동
-```
-
-5) GitHub에서 PR 생성
-```markdown
-# 반드시 "본인 개인 Repo"에서 PR을 생성해야 합니다.
-# (회사 템플릿 Repo로 절대 PR을 보내지 않습니다.)
-
-main       # 기본 브랜치 (최종 결과물)
-develop    # 매주 실습 코드 병합 대상
-feature/*  # 실습 작업 브랜치
-```
-
-6) 리뷰 반영 → 승인 → merge
-
-## 7. Pull Request 템플릿
-PR 본문에는 아래 항목을 포함합니다:
-```bash
-# 구현 내용
-- (예: 회원 생성 API 구현)
-- (예: email 중복 예외 처리 추가)
-
-# 테스트 방법
-- Postman 캡처 또는 curl 명령어
-- 통합 테스트 실행 결과 로그
-
-# ERD/구조 변경
-- (있다면)
-
-# 어려웠던 점
-- (예: 지연 로딩 발생 시점 헷갈림)
-
-# 비고
-```
-
-## 8. 코드 리뷰 프로세스
-### 8.1 리뷰 흐름
-1. 신입 → 자신의 Repo에서 PR 생성
-2. 멘토/리드 → 해당 PR에 리뷰 작성
-3. 신입 → 리뷰 반영 후 커밋
-4. 멘토/리드 → 승인
-5. (본인 Repo의) develop 브랜치로 merge
-
-### 8.2 리뷰 기준
-아키텍처
-- Controller / Service / Repository 역할 분리
-- 계층 간 책임 명확성
-
-JPA
-- 연관관계 주인 설정 적절성
-- LAZY 우선 적용
-- N+1 발생 여부
-
-트랜잭션
-- @Transactional 적용 위치
-- 롤백 정책
-
-예외 처리
-- ErrorCode 정의
-- GlobalExceptionHandler 일관성
-
-QueryDSL
-- 동적 조건 가독성
-- fetch join 적절성
-
-테스트
-- Given-When-Then 패턴
-- 성공/실패 케이스 포함
+<img width="853" height="795" alt="image" src="https://github.com/user-attachments/assets/5ac89b49-2cad-4edb-9add-c7c08e13d3bb" />
+<img width="854" height="372" alt="image" src="https://github.com/user-attachments/assets/f4989491-1af2-4683-b31f-7983231d98a7" />
 
 
-## 9. 주차별 README 안내
-각 주차별 폴더에는 아래 항목이 포함된 README.md가 있습니다:
-- 학습 목표
-- 실습 과제 설명
-- 구현 요구사항
-- 제출 방법
-- 체크리스트
-주차별 README는 해당 주차의 필수 가이드입니다.
+---
 
-## 10. Final Project 안내
-최종 2주 동안 수행하는 실전 프로젝트입니다.
+## 4. 구현 요구사항
 
-### 10.1 구현 목표
-- 회원 / 상품 / 주문 / 결제 도메인 구현
-- JWT 인증/인가
-- 재고 감소 트랜잭션
-- QueryDSL 기반 검색
-- 예외 처리 일원화
-- 통합 테스트 작성
+- 모든 CRUD는 **순수 Java 메모리 기반**으로 구현한다 (DB, Spring 사용 X).
+- 컬렉션(List, Map) 사용.
+- Optional, Stream을 한 번 이상 사용해본다.
 
-### 10.2 제출물
-- 전체 코드
-- ERD
-- API 문서
-- 테스트 로그
-- 설계 문서
-- 회고(1~2페이지)
+---
+
+## 5. 제출 방법
+
+1. `feature/week01-{이름}` 브랜치 생성
+2. `week01-java-basic` 폴더에서 작업
+3. 커밋 & 푸시
+4. PR 생성 (base: develop)
+5. PR 본문:
+    - 구현한 기능 리스트
+    - 실행 결과 또는 콘솔 출력 캡처
+    - 어려웠던 점
+
+---
+
+## 6. 자기 점검 체크리스트
+
+- [x]  User/Post 클래스를 직접 설계해보았다.
+- [x]  Map 기반 Repository를 구현했다.
+- [x]  Service 계층을 추가해보았다.
+- [x]  Stream/Optional을 사용해봤다.
+- [x]  main 메서드에서 end-to-end 시나리오를 실행해봤다.
+
+---
